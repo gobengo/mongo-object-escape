@@ -42,7 +42,8 @@ describe('mongo-object-escape', function () {
     var record = {
       "$schema": "http://json-schema.org/draft-04/schema#",
       your: 'mom',
-      'hi.di': 'ho'
+      'hi.di': 'ho',
+      hi: null
     };
     assert.deepEqual(record, mongoObject.unescape(mongoObject.escape(record)));
   });
