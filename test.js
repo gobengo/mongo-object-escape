@@ -47,6 +47,15 @@ describe('mongo-object-escape', function () {
     };
     assert.deepEqual(record, mongoObject.unescape(mongoObject.escape(record)));
   });
+  it('doesn\'t mangle dates', function () {
+    var record = {
+      now: new Date()
+    };
+    var escaped = mongoObject.escape(record);
+    assert.instanceOf(escaped.now, Date);
+    var unescaped = mongoObject.unescape(escaped);
+    assert.instanceOf(unescaped.now, Date);
+  })
 });
 
 function assertEscaped(obj) {

@@ -12,8 +12,14 @@ function rewriteObjKeys(rewriteKey, obj) {
   var escaped = {};
   Object.keys(obj).forEach(function (key) {
     var val = obj[key];
-    var shouldEscapeVal = val !== null && typeof val === 'object' && ! Array.isArray(val);
-    escaped[rewriteKey(key)] = shouldEscapeVal ? rewriteObjKeys(rewriteKey, val) : val;
+    escaped[rewriteKey(key)] = shouldEscapeVal(val) ? rewriteObjKeys(rewriteKey, val) : val;
   });
   return escaped;
+}
+
+function shouldEscapeVal(val) {
+  return val !== null
+      && typeof val === 'object'
+      && ! Array.isArray(val)
+      && ! (val instanceof Date)
 }
