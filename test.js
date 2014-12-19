@@ -17,6 +17,23 @@ describe('mongo-object-escape', function () {
       var escaped = mongoObject.escape(record);
       assertEscaped(escaped);
     })
+    it('escapes all the keys with nested array of objects', function () {
+      var bad = { thing: [{ "blah-1.0.0": "hi" }] }
+      var escaped = mongoObject.escape(bad);
+      assert.ok(Array.isArray(escaped.thing));
+      assertEscaped(escaped);
+    })
+    it('escapes all the keys ob objects in an array', function () {
+      var bad = [{ "blah-1.0.0": "hi" }];
+      var escaped = mongoObject.escape(bad);
+      assert.ok(Array.isArray(escaped));
+      assertEscaped(escaped);
+    })
+    it('escapes an array of strings', function () {
+      var bad = ['hi', 'ho'];
+      var escaped = mongoObject.escape(bad);
+      assert.deepEqual(bad, escaped);
+    });
   });
   describe('unescape', function () {
     it('returns a new object', function () {
@@ -59,6 +76,12 @@ describe('mongo-object-escape', function () {
 });
 
 function assertEscaped(obj) {
+  if (typeof obj !== 'object') {
+    return;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(assertEscaped);
+  }
   Object.keys(obj).forEach(function (key) {
     assert.notInclude(key, '.');
     assert.notInclude(key, '$');

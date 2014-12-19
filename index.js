@@ -9,17 +9,28 @@ exports.unescape = function (obj) {
 };
 
 function rewriteObjKeys(rewriteKey, obj) {
-  var escaped = {};
-  Object.keys(obj).forEach(function (key) {
-    var val = obj[key];
-    escaped[rewriteKey(key)] = shouldEscapeVal(val) ? rewriteObjKeys(rewriteKey, val) : val;
-  });
+  var escaped = obj;
+  if (Array.isArray(obj)) {
+    escaped = obj.map(function (d) {
+      return rewriteObjKeys(rewriteKey, d);
+    });
+  } else if (shouldEscapeVal(obj)) {
+    escaped = Object.keys(obj).reduce(function (escaped, key) {
+      var val = obj[key];
+      var escapedKey = rewriteKey(key);
+      if ( ! shouldEscapeVal(val)) {
+        escaped[escapedKey] = val;
+      } else {
+        escaped[escapedKey] = rewriteObjKeys(rewriteKey, val);
+      }
+      return escaped;
+    }, {});
+  }
   return escaped;
 }
 
 function shouldEscapeVal(val) {
   return val !== null
       && typeof val === 'object'
-      && ! Array.isArray(val)
       && ! (val instanceof Date)
 }
